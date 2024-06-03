@@ -15,6 +15,9 @@ ORGANIZATION_KEY = os.getenv("ORGANIZATION_KEY")
 PROJECT_ID = os.getenv("PROJECT_ID")
 print(ORGANIZATION_KEY,PROJECT_ID,OPENAI_API_KEY)
 
+
+history_mapping = {}
+
 MAX_SESSION_TIME = 1
 
 client = OpenAI(
@@ -84,22 +87,27 @@ async def end(ctx):
 
 
 @bot.command()
-@commands.has_permissions(administrator=True)
+#@commands.has_permissions(administrator=True)
 async def prompt(ctx, *args):
     print(f"{args=}")
+    print(ctx, ctx.message)
+    id = f"{ctx.message.channel.id}/{ctx.message.author.id}"
+    print(id)
+    if id in history_mapping:
+        print("Repeat")
+        history = history_mapping[id]
+    else:
+        print("First")
+        history = []
+        history_mapping[id] = history
     prompt = " ".join(args)
+    history.append({"role": "user", "content": prompt})
     response = client.chat.completions.create(
-    messages=[
-        {
-            "role": "user",
-            "content": prompt,
-        }
-    ],
+    messages=history,
     model="gpt-3.5-turbo",)
     print(response)
-    print(prompt, type(prompt))
-    print(ctx.message)
-    
+    answer = response.choices[0].message.content
+    history.append({"role": "assistant", "content": answer})
     await ctx.send(response.choices[0].message.content)
     
 
