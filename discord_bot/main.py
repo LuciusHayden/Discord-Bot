@@ -10,7 +10,6 @@ import os
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
-print(BOT_TOKEN, CHANNEL_ID)
 MAX_SESSION_TIME = 1
 
 @dataclass
