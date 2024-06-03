@@ -10,8 +10,19 @@ import os
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
-print(BOT_TOKEN, CHANNEL_ID)
+OPENAI_API_KEY = os.getenv("OPENAI_KEY")
+ORGANIZATION_KEY = os.getenv("ORGANIZATION_KEY")
+PROJECT_ID = os.getenv("PROJECT_ID")
+print(ORGANIZATION_KEY,PROJECT_ID,OPENAI_API_KEY)
+
 MAX_SESSION_TIME = 1
+
+client = OpenAI(
+    organization=ORGANIZATION_KEY, 
+    api_key=OPENAI_API_KEY,
+)
+
+
 
 @dataclass
 class Session:
@@ -70,5 +81,26 @@ async def end(ctx):
     readableDuration = str(datetime.timedelta(seconds=duration))
     reminder.stop()
     await ctx.send(f"Session lasted {readableDuration}")
+
+
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def prompt(ctx, *args):
+    print(f"{args=}")
+    prompt = " ".join(args)
+    response = client.chat.completions.create(
+    messages=[
+        {
+            "role": "user",
+            "content": prompt,
+        }
+    ],
+    model="gpt-3.5-turbo",)
+    print(response)
+    print(prompt, type(prompt))
+    print(ctx.message)
+    
+    await ctx.send(response.choices[0].message.content)
+    
 
 bot.run(BOT_TOKEN)
