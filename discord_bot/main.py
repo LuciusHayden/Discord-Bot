@@ -25,8 +25,6 @@ client = OpenAI(
     api_key=OPENAI_API_KEY,
 )
 
-
-
 @dataclass
 class Session:
     is_active: bool = False
@@ -87,7 +85,7 @@ async def end(ctx):
 
 
 @bot.command()
-#@commands.has_permissions(administrator=True)
+@commands.has_permissions(administrator=True)
 async def prompt(ctx, *args):
     print(f"{args=}")
     print(ctx, ctx.message)
@@ -109,6 +107,11 @@ async def prompt(ctx, *args):
     answer = response.choices[0].message.content
     history.append({"role": "assistant", "content": answer})
     await ctx.send(response.choices[0].message.content)
-    
+
+@bot.command()
+async def clear(ctx):
+    id = f"{ctx.message.channel.id}/{ctx.message.author.id}"
+    history_mapping[id] = []
+    await ctx.send("History Cleared")
 
 bot.run(BOT_TOKEN)
