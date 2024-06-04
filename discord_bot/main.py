@@ -13,8 +13,6 @@ CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 OPENAI_API_KEY = os.getenv("OPENAI_KEY")
 ORGANIZATION_KEY = os.getenv("ORGANIZATION_KEY")
 PROJECT_ID = os.getenv("PROJECT_ID")
-print(ORGANIZATION_KEY,PROJECT_ID,OPENAI_API_KEY)
-
 
 history_mapping = {}
 
@@ -107,6 +105,28 @@ async def prompt(ctx, *args):
     answer = response.choices[0].message.content
     history.append({"role": "assistant", "content": answer})
     await ctx.send(response.choices[0].message.content)
+    
+
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def imagePrompt(ctx, *args):
+    prompt = " ".join(args)
+    await ctx.send("Creating Image..." , delete_after=5)
+    print(prompt)
+    response = client.images.generate(
+    model="dall-e-3",
+    prompt = prompt,
+    quality="standard",
+    n=1,)
+    print(response)
+    await ctx.send(response.data[0].url)
+
+
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def purge(ctx, limit):
+    await ctx.channel.purge(limit=int(limit))
+    await ctx.channel.send(f"Purged {limit} messages")
 
 @bot.command()
 async def clear(ctx):
